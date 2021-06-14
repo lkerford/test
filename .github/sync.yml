@@ -1,3 +1,3 @@
-squareup/cash-policies:
+https://github.com/squareup/cash-policies:
   - source: policies/
   - dest: policies/authz-experiments/
