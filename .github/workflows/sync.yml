@@ -6,11 +6,31 @@ on:
   workflow_dispatch:
 jobs:
   sync:
-    runs-on: ubuntu-latest
+    runs-on:
+    - cash-deploy-alpha
     steps:
       - name: Checkout Repository
         uses: actions/checkout@master
-      - name: Run GitHub File Sync
-        uses: BetaHuhn/repo-file-sync-action@v1
         with:
-          GH_PAT: ${{ secrets.GH_PAT }}
+          path: main
+        
+      # This requires the expanded access token
+      - name: Retrieve access token
+        run: |
+          echo "access_token=$(cat /github-secrets/INSTALLATION_ACCESS_TOKEN)" >> $GITHUB_ENV 
+        
+      - name: Checkout Cash-Policies
+        uses: actions/checkout@master
+        with:
+          repository: squareup/cash-policies
+          token: ${{ env.access_token }}
+          path: cash-policies    
+          
+      - name: Copy files
+        run: |
+          mkdir cash-policies/test-gha
+          cp -rf main/policies cash-policies/test-gha
+          cd cash-policies
+          git add .
+          git commit -a -m "Policy Update"
+          git push 
